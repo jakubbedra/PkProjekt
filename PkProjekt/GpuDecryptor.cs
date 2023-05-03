@@ -445,11 +445,11 @@ public class GpuDecryptor
 
         // Load the data.
         MemoryBuffer1D<byte, Stride1D.Dense> deviceData = accelerator.Allocate1D(bytes);
-        MemoryBuffer1D<byte, Stride1D.Dense> deviceOutput = accelerator.Allocate1D<byte>(6);
+        MemoryBuffer1D<byte, Stride1D.Dense> deviceOutput = accelerator.Allocate1D<byte>(5);
 
 
         Action<Index2D, ArrayView<byte>, ArrayView<byte>> loadedKernel =
-            accelerator.LoadAutoGroupedStreamKernel<Index2D, ArrayView<byte>, ArrayView<byte>>(Kernel);
+            accelerator.LoadAutoGroupedStreamKernel<Index2D, ArrayView<byte>, ArrayView<byte>>(Kernel5);
         loadedKernel(new Index2D((int)deviceData.Length, (int)deviceData.Length), deviceData.View, deviceOutput.View);
 
         // wait for the accelerator to be finished with whatever it's doing
@@ -460,7 +460,47 @@ public class GpuDecryptor
         byte[] hostOutput = deviceOutput.GetAsArray1D();
 
         Console.WriteLine("Found word:");
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 5; i++)
+        {
+            Console.Write((char)hostOutput[i]);
+        }
+
+        Console.WriteLine();
+        accelerator.Dispose();
+        context.Dispose();
+    }
+    
+    public void RunKernel4()
+    {
+        byte[] bytes = new byte[_charArray.Length];
+        for (int i = 0; i < _charArray.Length; i++)
+        {
+            bytes[i] = (byte)_charArray[i];
+        }
+
+        // Initialize ILGPU.
+        Context context = Context.Create(builder => builder.Cuda().EnableAlgorithms());
+        Accelerator accelerator = context.GetPreferredDevice(preferCPU: false)
+            .CreateAccelerator(context);
+
+        // Load the data.
+        MemoryBuffer1D<byte, Stride1D.Dense> deviceData = accelerator.Allocate1D(bytes);
+        MemoryBuffer1D<byte, Stride1D.Dense> deviceOutput = accelerator.Allocate1D<byte>(4);
+
+
+        Action<Index2D, ArrayView<byte>, ArrayView<byte>> loadedKernel =
+            accelerator.LoadAutoGroupedStreamKernel<Index2D, ArrayView<byte>, ArrayView<byte>>(Kernel4);
+        loadedKernel(new Index2D((int)deviceData.Length, (int)deviceData.Length), deviceData.View, deviceOutput.View);
+
+        // wait for the accelerator to be finished with whatever it's doing
+        // in this case it just waits for the kernel to finish.
+        accelerator.Synchronize();
+
+        // moved output data from the GPU to the CPU for output to console
+        byte[] hostOutput = deviceOutput.GetAsArray1D();
+
+        Console.WriteLine("Found word:");
+        for (int i = 0; i < 4; i++)
         {
             Console.Write((char)hostOutput[i]);
         }

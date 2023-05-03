@@ -87,14 +87,15 @@ public static class Program
 
     public static void Main(string[] args)
     {
-        //Hashuj2();
-        //Hashuj3();
+        Hashuj2();
+        Hashuj3();
         //Hashuj4();
         //Hashuj5();
         GpuDecryptor decryptor = new GpuDecryptor();
+        //decryptor.RunKernel4();
         //decryptor.Start();
         //decryptor.RunKernel6();
-        decryptor.RunKernel7();
+        //decryptor.RunKernel7();
     }
 
 }
